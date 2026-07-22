@@ -1,0 +1,47 @@
+name: TEMP - Diagnostico API Ceara Transparente
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+    branches: [main]
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  diagnose:
+    if: github.head_ref == 'tmp/diagnose-ceara-api-20260722'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - name: Testar uma pagina com limite rigido
+        shell: bash
+        run: |
+          mkdir -p diagnostico
+          url='https://api-dados-abertos.cearatransparente.ce.gov.br/transparencia/contratos/convenios?data_assinatura_inicio=01%2F01%2F2026&data_assinatura_fim=22%2F07%2F2026&plain_cpf_cnpj_financiador=07605850000162&page=1'
+          set +e
+          /usr/bin/time -v curl --silent --show-error --location \
+            --connect-timeout 10 --max-time 30 \
+            -H 'Accept: application/json' \
+            -H 'User-Agent: Mozilla/5.0 OpenDataDiagnostic/1.0' \
+            --dump-header diagnostico/headers.txt \
+            --output diagnostico/body.txt \
+            --write-out '%{json}\n' \
+            "$url" > diagnostico/curl-metrics.json 2> diagnostico/stderr.txt
+          status=$?
+          set -e
+          echo "$status" > diagnostico/exit-code.txt
+          wc -c diagnostico/body.txt || true
+          cat diagnostico/headers.txt || true
+          cat diagnostico/curl-metrics.json || true
+          cat diagnostico/stderr.txt || true
+      - name: Publicar diagnostico
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: diagnostico-api-ceara
+          path: diagnostico/
+          if-no-files-found: error
+          retention-days: 1
