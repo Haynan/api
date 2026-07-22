@@ -1,0 +1,49 @@
+name: TEMP - Coleta convenios Ceara Transparente
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+    branches: [main]
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  collect:
+    if: github.head_ref == 'tmp/execute-ceara-convenios-20260722'
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Coletar todos os convenios e registrar metricas
+        shell: bash
+        env:
+          COLLECTOR_GZIP_B64: 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
+        run: |
+          python - <<'PY'
+          import base64, gzip, os
+          source = gzip.decompress(base64.b64decode(os.environ['COLLECTOR_GZIP_B64'])).decode('utf-8')
+          exec(compile(source, 'collector.py', 'exec'))
+          PY
+      - name: Resumo do processamento
+        if: always()
+        shell: bash
+        run: |
+          if [[ -f resultados/resumo_execucao.json ]]; then
+            echo '## Coleta de convenios' >> "$GITHUB_STEP_SUMMARY"
+            echo '```json' >> "$GITHUB_STEP_SUMMARY"
+            cat resultados/resumo_execucao.json >> "$GITHUB_STEP_SUMMARY"
+            echo '```' >> "$GITHUB_STEP_SUMMARY"
+          fi
+      - name: Publicar arquivos coletados
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: convenios-ceara-07605850000162
+          path: resultados/
+          if-no-files-found: error
+          retention-days: 3
