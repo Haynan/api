@@ -1,1 +1,2 @@
 Execução temporária da coleta solicitada em 22/07/2026.
+Segundo disparo após o registro do workflow na branch principal.
